@@ -32,14 +32,23 @@ Java 负责系统能力，CSS 负责视觉表现，所以动画表现力接近�
 
 ## 构建
 
-需要 JDK 17 + Android SDK (compileSdk 36)。
+需要 **JDK 17** 和 **Android SDK (compileSdk 36)**。
 
 ```bash
+export JAVA_HOME=/path/to/jdk-17
+export ANDROID_HOME=/path/to/android-sdk
 ./build.sh          # 输出 app/build/outputs/apk/release/app-release.apk
 ```
 
-首次构建前请在 `local.properties` 里填好 `sdk.dir`，
-并在 `app/build.gradle` 里替换成自己的签名配置。
+或者在工程根目录建一个 `local.properties`：
+
+```
+sdk.dir=/path/to/android-sdk
+```
+
+> 签名：`app/build.gradle` 里的 `signingConfigs.release` 指向 `keystore/hypno.jks`，
+> 该文件**未包含在本仓库中**（已在 `.gitignore` 排除）。
+> 请替换为你自己的密钥，或先注释掉 `signingConfig` 用 debug 签名出包。
 
 ## 技术参数
 
