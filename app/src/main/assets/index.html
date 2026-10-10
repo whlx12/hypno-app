@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0616">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
+<title>催眠APP</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 横屏提示 -->
+<div class="rotate-tip">
+  <div>
+    <div class="ic">📱</div>
+    <p>请把手机竖过来使用</p>
+  </div>
+</div>
+
+<div id="app">
+
+  <div class="screens">
+
+    <!-- ================= 第一层：首页 ================= -->
+    <section class="screen active" data-screen="home">
+
+      <div class="home-head">
+        <div class="orb"><span>♡</span></div>
+        <h1>催眠APP</h1>
+        <div class="tag">Hypnosis Simulator</div>
+      </div>
+
+      <div class="overview">
+        <div class="ov-ring" id="ovRing" style="--p:0"><b id="ovCount">0</b></div>
+        <div class="ov-txt">
+          <div class="k">催眠对象</div>
+          <div class="v empty" id="ovTarget">尚未指定</div>
+        </div>
+      </div>
+
+      <div class="menu">
+        <button class="card hero-card rip" data-go="change">
+          <span class="card-ico" style="--c1:#ff4fa3;--c2:#a06bff">🧬</span>
+          <span class="card-txt">
+            <b>对象修改</b>
+            <small>性别 · 身高 · 体重 · 体形 · 分类 · 外观</small>
+          </span>
+          <span class="chev">›</span>
+        </button>
+
+        <button class="card hero-card rip" data-go="hypno">
+          <span class="card-ico" style="--c1:#a06bff;--c2:#4fd8ff">🌀</span>
+          <span class="card-txt">
+            <b>催眠</b>
+            <small>自定义台词 · 假装录音</small>
+          </span>
+          <span class="chev">›</span>
+        </button>
+
+        <div class="grid2">
+          <button class="card mini rip" data-go="common">
+            <span class="card-ico sm" style="--c1:#4fd8ff;--c2:#a06bff">📖</span>
+            <span class="card-txt">
+              <b>常识改写</b>
+              <small>改变认知</small>
+            </span>
+          </button>
+
+          <button class="card mini rip" data-go="sense">
+            <span class="card-ico sm" style="--c1:#ff8fd0;--c2:#ff4fa3">💗</span>
+            <span class="card-txt">
+              <b>感觉调整</b>
+              <small>心情 · 感觉</small>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <p class="foot-note">※ 本应用不会产生任何实际的催眠效果<br>仅为漫画风格的视觉演出小玩具</p>
+    </section>
+
+
+    <!-- ================= 第二层：对象修改 ================= -->
+    <section class="screen" data-screen="change">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>对象修改</h2>
+        <span class="tb-sub" id="changeCount"></span>
+      </div>
+
+      <!-- 变身预览 -->
+      <div class="morph">
+        <div class="morph-head"><span class="bar"></span><h3>变身预览</h3></div>
+        <div class="morph-who" id="morphWho">还没指定是谁</div>
+        <div class="morph-mid">
+          <span class="morph-tag">催眠后</span>
+          <span class="morph-line"></span>
+        </div>
+        <div class="morph-to" id="morphTo">还没设定会变成什么样</div>
+      </div>
+
+      <p class="lead">这里不是「指定对象」，而是决定被催眠的人<b>会变成什么样子</b>。填得越具体，变化越彻底。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>被催眠的人</h3></div>
+
+        <div class="field">
+          <label>TA 是谁</label>
+          <input class="txt" type="text" data-key="cn-name" placeholder="例如：我的好哥们" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的性别与年纪</h3></div>
+
+        <div class="field">
+          <label>性别</label>
+          <div class="chips" data-key="gender" data-single>
+            <button class="chip rip">男性</button>
+            <button class="chip rip">女性</button>
+            <button class="chip rip">中性</button>
+            <button class="chip rip">不改变</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>年龄</label>
+          <div class="range" data-range>
+            <span class="bubble">22 岁</span>
+            <input type="range" data-key="cn-age" data-unit=" 岁" min="18" max="80" value="22">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的身材</h3></div>
+
+        <div class="field">
+          <label>身高</label>
+          <div class="range" data-range>
+            <span class="bubble">160 cm</span>
+            <input type="range" data-key="cn-height" data-unit=" cm" min="130" max="200" value="160">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>体重</label>
+          <div class="range" data-range>
+            <span class="bubble">52 kg</span>
+            <input type="range" data-key="cn-weight" data-unit=" kg" min="30" max="120" value="52">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>体形</label>
+          <div class="chips" data-key="cn-body">
+            <button class="chip rip">纤细</button>
+            <button class="chip rip">标准</button>
+            <button class="chip rip">丰满</button>
+            <button class="chip rip">大胸</button>
+            <button class="chip rip">健壮</button>
+            <button class="chip rip">娇小</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的气质</h3></div>
+
+        <div class="field">
+          <label>气质 / 属性 <span class="hint" style="color:var(--faint);font-size:10px">可多选</span></label>
+          <div class="chips" data-key="cn-type">
+            <button class="chip rip">假小子</button>
+            <button class="chip rip">大小姐</button>
+            <button class="chip rip">元气系</button>
+            <button class="chip rip">文静系</button>
+            <button class="chip rip">姐系</button>
+            <button class="chip rip">妹系</button>
+            <button class="chip rip">运动系</button>
+            <button class="chip rip">眼镜娘</button>
+            <button class="chip rip">制服</button>
+            <button class="chip rip">哥特</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>性格 <span style="color:var(--faint);font-size:10px">可多选</span></label>
+          <div class="chips" data-key="cn-pers">
+            <button class="chip rip">温柔</button>
+            <button class="chip rip">强势</button>
+            <button class="chip rip">傲娇</button>
+            <button class="chip rip">内向</button>
+            <button class="chip rip">开朗</button>
+            <button class="chip rip">冷静</button>
+            <button class="chip rip">爱撒娇</button>
+            <button class="chip rip">毒舌</button>
+            <button class="chip rip">顺从</button>
+            <button class="chip rip">高冷</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的外观</h3></div>
+
+        <div class="field">
+          <label>发色</label>
+          <div class="chips" data-key="cn-hair" data-single>
+            <button class="chip rip">黑</button>
+            <button class="chip rip">棕</button>
+            <button class="chip rip">金</button>
+            <button class="chip rip">粉</button>
+            <button class="chip rip">蓝</button>
+            <button class="chip rip">银</button>
+            <button class="chip rip">红</button>
+            <button class="chip rip">紫</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>发型</label>
+          <div class="chips" data-key="cn-hairlen" data-single>
+            <button class="chip rip">短发</button>
+            <button class="chip rip">中长发</button>
+            <button class="chip rip">长发</button>
+            <button class="chip rip">双马尾</button>
+            <button class="chip rip">丸子头</button>
+            <button class="chip rip">编发</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>瞳色</label>
+          <div class="chips" data-key="cn-eye" data-single>
+            <button class="chip rip">棕</button>
+            <button class="chip rip">黑</button>
+            <button class="chip rip">蓝</button>
+            <button class="chip rip">红</button>
+            <button class="chip rip">金</button>
+            <button class="chip rip">紫</button>
+            <button class="chip rip">异色瞳</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>声线</label>
+          <div class="chips" data-key="cn-voice" data-single>
+            <button class="chip rip">低音</button>
+            <button class="chip rip">中音</button>
+            <button class="chip rip">高音</button>
+            <button class="chip rip">甜音</button>
+            <button class="chip rip">沙哑</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>附加设定 / 口头禅</label>
+          <textarea class="txt" data-key="cn-note" placeholder="例如：说话时总会带上「的说」……"></textarea>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= 第二层：正经催眠 ================= -->
+    <section class="screen" data-screen="hypno">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>催眠</h2>
+        <span class="tb-sub" id="hypnoCount"></span>
+      </div>
+
+      <p class="lead">对 TA 施加催眠。可以附一句自己想说的话，或者录一段假装语音。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>催眠对象</h3></div>
+        <div class="field">
+          <label>对谁催眠</label>
+          <input class="txt" type="text" data-key="hy-target" placeholder="例如：她 / 坐在对面的那个人" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>诱导</h3></div>
+
+        <div class="field">
+          <label>自定义台词</label>
+          <textarea class="txt" data-key="hy-text" placeholder="例如：你现在很放松，只能听见我的声音……"></textarea>
+        </div>
+
+        <div class="field">
+          <label>诱导强度</label>
+          <div class="range" data-range>
+            <span class="bubble">6 / 10</span>
+            <input type="range" data-key="hy-strength" data-unit="/10" min="1" max="10" value="6">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="row">
+            <div class="row-txt">
+              <b>循环播放</b>
+              <small>演出结束后自动再来一次</small>
+            </div>
+            <button class="switch rip" data-key="hy-loop" aria-label="循环播放"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>自定义语音</h3></div>
+
+        <div class="rec">
+          <button class="rec-btn rip" id="recBtn">
+            <span class="rec-dot"></span><span id="recLabel">录音</span>
+          </button>
+          <div class="rec-wave" id="recWave">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="rec-time" id="recTime">00:00</div>
+        </div>
+
+        <div class="clip" id="voiceClip" hidden>
+          <button class="play rip" id="vcPlay">▶</button>
+          <span class="meta">
+            <b>自定义语音</b>
+            <small id="vcInfo">00:00 · 已录制</small>
+          </span>
+          <button class="del" id="vcDel">×</button>
+        </div>
+
+        <input type="hidden" data-key="hy-voice" id="hyVoice" value="">
+        <p class="lead" style="margin:11px 2px 0;font-size:10.5px">※ 不会真的保存音频。点播放时用系统朗读读出台词。</p>
+      </div>
+    </section>
+
+
+    <!-- ================= 第二层：常识改写 ================= -->
+    <section class="screen" data-screen="common">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>常识改写</h2>
+        <span class="tb-sub" id="commonCount"></span>
+      </div>
+
+      <p class="lead">把「理所当然」悄悄换掉。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>设定</h3></div>
+
+        <div class="field">
+          <label>对象</label>
+          <input class="txt" type="text" data-key="cm-target" placeholder="例如：她" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label>要改写的常识 <span style="color:var(--faint);font-size:10px">可多选</span></label>
+          <div class="chips" data-key="cm-what">
+            <button class="chip rip">「不行」→「可以」</button>
+            <button class="chip rip">喜欢上某件事</button>
+            <button class="chip rip">无聊的事变得快乐</button>
+            <button class="chip rip">忘记讨厌的事</button>
+            <button class="chip rip">称呼改成「主人」</button>
+            <button class="chip rip">觉得自己是一只猫</button>
+            <button class="chip rip">认为现在是做梦</button>
+            <button class="chip rip">对时间失去概念</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>备注</label>
+          <textarea class="txt" data-key="cm-text" placeholder="补充说明……"></textarea>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= 第二层：感觉调整 ================= -->
+    <section class="screen" data-screen="sense">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>感觉调整</h2>
+        <span class="tb-sub" id="senseCount"></span>
+      </div>
+
+      <p class="lead">把情绪和感觉的旋钮，拧到喜欢的位置。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>状态</h3></div>
+
+        <div class="field">
+          <label>心情</label>
+          <div class="chips" data-key="se-mood" data-single>
+            <button class="chip rip">平静</button>
+            <button class="chip rip">幸福</button>
+            <button class="chip rip">恍惚</button>
+            <button class="chip rip">兴奋</button>
+            <button class="chip rip">安心</button>
+            <button class="chip rip">困倦</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>敏感度</label>
+          <div class="range" data-range>
+            <span class="bubble">5 / 10</span>
+            <input type="range" data-key="se-sense" data-unit="/10" min="1" max="10" value="5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>体温</label>
+          <div class="range" data-range>
+            <span class="bubble">5 / 10</span>
+            <input type="range" data-key="se-warm" data-unit="/10" min="1" max="10" value="5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>心跳</label>
+          <div class="range" data-range>
+            <span class="bubble">5 / 10</span>
+            <input type="range" data-key="se-heart" data-unit="/10" min="1" max="10" value="5">
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.screens -->
+
+
+  <!-- ================= 底部主按钮 ================= -->
+  <div class="dock" id="dock">
+    <button class="btn-main rip" id="startBtn">催 眠 开 始</button>
+    <p class="dock-hint" id="dockHint">还没有设置任何项目</p>
+  </div>
+
+
+  <!-- ================= 演出层 ================= -->
+  <div class="show" id="show">
+    <div class="show-bg"></div>
+    <div class="spiral"></div>
+    <div class="hypno" id="hypno">
+      <div class="hypno-rot" id="hypnoRot"></div>
+    </div>
+    <div class="core-heart" id="coreHeart"></div>
+    <div id="pulse"></div>
+    <div id="hearts"></div>
+
+    <div class="result" id="result">
+      <div class="result-head"><span class="dot"></span>催眠 完了</div>
+      <ul id="resultList"></ul>
+      <div class="result-actions">
+        <button class="btn-ghost rip" id="againBtn">再来一次</button>
+        <button class="btn-solid rip" id="closeBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 轻提示 -->
+  <div class="toast" id="toast"></div>
+
+</div><!-- /#app -->
+
+<script src="app.js"></script>
+</body>
+</html>

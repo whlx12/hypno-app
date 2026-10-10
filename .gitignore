@@ -1,0 +1,18 @@
+# Android / Gradle
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+captures/
+
+# 签名密钥（不要上传）
+keystore/
+*.jks
+*.keystore
+
+# 系统
+.DS_Store
+Thumbs.db
+*.log

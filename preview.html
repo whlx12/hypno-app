@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a0616">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
+<title>催眠APP</title>
+<style>
+/* =========================================================
+   催眠APP — 样式表
+   设计基调：深空紫 + 极简玻璃卡片 + 克制的高光
+   ========================================================= */
+
+:root{
+  /* 安全区（Java 会覆盖为真实像素值） */
+  --st: env(safe-area-inset-top, 0px);
+  --sb: env(safe-area-inset-bottom, 0px);
+  --sl: env(safe-area-inset-left, 0px);
+  --sr: env(safe-area-inset-right, 0px);
+
+  --bg:        #0a0616;
+  --surface-1: rgba(255,255,255,.05);
+  --surface-2: rgba(255,255,255,.085);
+  --line:      rgba(255,255,255,.09);
+  --line-2:    rgba(255,255,255,.17);
+
+  --text:  #f3eeff;
+  --dim:   #a99cc4;
+  --faint: #6f6288;
+
+  --pink:   #ff4fa3;
+  --violet: #a06bff;
+  --cyan:   #4fd8ff;
+  --grad:   linear-gradient(135deg,#ff4fa3 0%,#a06bff 55%,#4fd8ff 100%);
+
+  --r-xl: 24px;
+  --r-lg: 20px;
+  --r-md: 15px;
+  --r-sm: 11px;
+
+  --ease: cubic-bezier(.22,.8,.32,1);
+  --dock-h: 132px;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box;
+   -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+
+html{
+  height:100%;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+
+body{
+  height:100%;
+  overflow:hidden;
+  overscroll-behavior:none;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"PingFang SC","Hiragino Sans","Noto Sans SC","Yu Gothic UI","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-user-select:none; user-select:none;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+input, textarea{ -webkit-user-select:text; user-select:text; }
+button{ font-family:inherit; color:inherit; }
+
+/* ================= 应用外壳 ================= */
+#app{
+  position:relative;
+  width:100%;
+  height:100vh; height:100dvh;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  background:
+    radial-gradient(120% 55% at 50% -8%,  rgba(120,60,220,.42) 0%, transparent 62%),
+    radial-gradient(85%  50% at 105% 102%, rgba(255,79,163,.20) 0%, transparent 60%),
+    radial-gradient(70%  45% at -10% 88%,  rgba(79,216,255,.13) 0%, transparent 60%),
+    var(--bg);
+}
+
+/* ================= 屏幕容器 ================= */
+.screens{ position:relative; flex:1; min-height:0; overflow:hidden; }
+
+.screen{
+  position:absolute; inset:0;
+  overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  padding:0 18px calc(var(--dock-h) + var(--sb) + 12px);
+  opacity:0;
+  transform:translate3d(28px,0,0);
+  pointer-events:none;
+  transition:opacity .26s var(--ease), transform .38s var(--ease);
+}
+.screen.active{ opacity:1; transform:translate3d(0,0,0); pointer-events:auto; }
+.screen::-webkit-scrollbar{ width:0; height:0; }
+
+/* ================= 顶栏 ================= */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  display:flex; align-items:center; gap:12px;
+  margin:0 -18px 6px;
+  padding:calc(var(--st) + 14px) 18px 12px;
+  background:linear-gradient(180deg,
+      rgba(12,5,26,.96) 0%,
+      rgba(12,5,26,.82) 62%,
+      rgba(12,5,26,0) 100%);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.topbar h2{
+  font-size:16px; font-weight:700; letter-spacing:.10em;
+}
+.topbar .tb-sub{
+  margin-left:auto; font-size:11px; color:var(--faint);
+  letter-spacing:.05em; font-variant-numeric:tabular-nums;
+}
+
+.icon-btn{
+  width:40px; height:40px; flex:0 0 auto;
+  display:grid; place-items:center;
+  border-radius:13px;
+  border:1px solid var(--line);
+  background:var(--surface-1);
+  font-size:19px; line-height:1;
+  cursor:pointer;
+  transition:transform .16s var(--ease), background .2s, border-color .2s;
+}
+.icon-btn:active{ transform:scale(.9); background:var(--surface-2); }
+
+/* ================= 首页 ================= */
+.home-head{
+  padding:calc(var(--st) + 34px) 4px 26px;
+  text-align:center;
+}
+.orb{
+  width:86px; height:86px; margin:0 auto 18px;
+  border-radius:50%;
+  display:grid; place-items:center;
+  background:radial-gradient(circle at 32% 26%, #ffd3ec 0%, #ff4fa3 38%, #a06bff 74%, #4a2bb5 100%);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.14),
+    0 14px 42px rgba(255,79,163,.42),
+    0 0 70px rgba(160,107,255,.30);
+  animation:orbPulse 4.2s ease-in-out infinite;
+}
+.orb span{ font-size:38px; color:#fff; filter:drop-shadow(0 2px 8px rgba(0,0,0,.35)); }
+@keyframes orbPulse{
+  0%,100%{ transform:scale(1);    box-shadow:0 0 0 1px rgba(255,255,255,.14), 0 14px 42px rgba(255,79,163,.42), 0 0 70px rgba(160,107,255,.30); }
+  50%    { transform:scale(1.055); box-shadow:0 0 0 1px rgba(255,255,255,.20), 0 18px 54px rgba(255,79,163,.55), 0 0 96px rgba(160,107,255,.44); }
+}
+.home-head h1{
+  font-size:27px; font-weight:800; letter-spacing:.26em; text-indent:.26em;
+  background:linear-gradient(100deg,#ffffff 0%,#ffc2e4 42%,#c4a6ff 72%,#9ceaff 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.home-head .tag{
+  margin-top:10px; font-size:9.5px; letter-spacing:.44em; text-indent:.44em;
+  color:var(--faint); text-transform:uppercase;
+}
+
+/* 概览卡 */
+.overview{
+  display:flex; align-items:center; gap:14px;
+  margin-bottom:14px;
+  padding:15px 16px;
+  border-radius:var(--r-lg);
+  border:1px solid var(--line);
+  background:linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.02));
+}
+.ov-ring{
+  position:relative; width:52px; height:52px; flex:0 0 auto;
+  border-radius:50%;
+  background:conic-gradient(var(--pink) 0deg, var(--violet) calc(var(--p,0) * 360deg), rgba(255,255,255,.10) calc(var(--p,0) * 360deg));
+  transition:background .45s var(--ease);
+}
+.ov-ring::after{
+  content:''; position:absolute; inset:5px; border-radius:50%;
+  background:#160c2b;
+}
+.ov-ring b{
+  position:absolute; inset:0; z-index:1;
+  display:grid; place-items:center;
+  font-size:16px; font-weight:800;
+  font-variant-numeric:tabular-nums;
+}
+.ov-txt{ min-width:0; flex:1; }
+.ov-txt .k{ font-size:11px; color:var(--faint); letter-spacing:.08em; }
+.ov-txt .v{
+  font-size:15px; font-weight:700; margin-top:3px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.ov-txt .v.empty{ color:var(--faint); font-weight:500; }
+
+/* ================= 卡片 ================= */
+.card{
+  position:relative;
+  display:flex; align-items:center; gap:14px;
+  width:100%; text-align:left;
+  padding:16px;
+  border-radius:var(--r-lg);
+  border:1px solid var(--line);
+  background:linear-gradient(135deg, rgba(255,255,255,.075), rgba(255,255,255,.022));
+  cursor:pointer; overflow:hidden;
+  transition:transform .16s var(--ease), border-color .22s, box-shadow .22s;
+}
+.card:active{ transform:scale(.975); border-color:rgba(255,79,163,.45); }
+.card.hero-card:active{ box-shadow:0 0 26px rgba(255,79,163,.20); }
+
+.card-ico{
+  width:46px; height:46px; flex:0 0 auto;
+  display:grid; place-items:center;
+  border-radius:15px; font-size:21px;
+  background:linear-gradient(135deg, var(--c1), var(--c2));
+  box-shadow:0 8px 20px -6px var(--c1);
+}
+.card-ico.sm{ width:38px; height:38px; border-radius:12px; font-size:17px; }
+
+.card-txt{ min-width:0; flex:1; }
+.card-txt b{ display:block; font-size:15px; font-weight:700; letter-spacing:.04em; }
+.card-txt small{ display:block; margin-top:4px; font-size:11px; color:var(--dim); line-height:1.4; }
+
+.chev{ font-size:20px; color:var(--faint); flex:0 0 auto; }
+
+.menu{ display:flex; flex-direction:column; gap:10px; }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.card.mini{ flex-direction:column; align-items:flex-start; gap:10px; padding:15px; }
+.card.mini .card-txt b{ font-size:13.5px; }
+.card.mini .card-txt small{ font-size:10.5px; margin-top:3px; }
+
+.foot-note{
+  margin:22px 6px 0;
+  font-size:10.5px; line-height:1.75;
+  color:var(--faint); text-align:center;
+}
+
+/* ================= 面板 ================= */
+.panel{
+  margin-bottom:14px;
+  padding:16px;
+  border-radius:var(--r-lg);
+  border:1px solid var(--line);
+  background:linear-gradient(160deg, rgba(255,255,255,.062), rgba(255,255,255,.018));
+}
+.panel-head{
+  display:flex; align-items:center; gap:9px;
+  margin-bottom:15px;
+}
+.panel-head .bar{
+  width:4px; height:15px; border-radius:3px;
+  background:var(--grad);
+  flex:0 0 auto;
+}
+.panel-head h3{ font-size:12.5px; font-weight:700; letter-spacing:.18em; color:#e5c9ff; }
+.panel-head .hint{ margin-left:auto; font-size:10px; color:var(--faint); }
+
+.lead{ font-size:11.5px; color:var(--dim); line-height:1.7; margin:-4px 2px 14px; }
+.lead b{ color:#ffb8e2; }
+
+/* ================= 变身预览 ================= */
+.morph{
+  margin:4px 0 16px;
+  padding:16px;
+  border-radius:var(--r-lg);
+  border:1px solid rgba(255,79,163,.34);
+  background:linear-gradient(150deg, rgba(255,79,163,.14), rgba(160,107,255,.09));
+  box-shadow:0 10px 30px -14px rgba(255,79,163,.6);
+}
+.morph-head{ display:flex; align-items:center; gap:9px; margin-bottom:14px; }
+.morph-head .bar{ width:4px; height:15px; border-radius:3px; background:var(--grad); flex:0 0 auto; }
+.morph-head h3{ font-size:12.5px; font-weight:700; letter-spacing:.18em; color:#e5c9ff; }
+
+.morph-who{
+  font-size:16.5px; font-weight:700; color:#fff; letter-spacing:.02em;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.morph-who.empty{ font-size:12.5px; font-weight:500; color:var(--faint); }
+
+.morph-mid{ display:flex; align-items:center; gap:9px; margin:11px 0; }
+.morph-tag{
+  flex:0 0 auto; padding:3px 11px; border-radius:99px;
+  font-size:10px; letter-spacing:.14em; color:#fff;
+  background:linear-gradient(135deg,var(--pink),var(--violet));
+}
+.morph-line{
+  flex:1; height:1px;
+  background:linear-gradient(90deg, rgba(255,79,163,.75), rgba(160,107,255,0));
+}
+
+.morph-to{ display:flex; flex-wrap:wrap; gap:6px; }
+.morph-to .tk{
+  padding:5px 11px; border-radius:9px;
+  background:rgba(255,255,255,.085);
+  border:1px solid rgba(255,255,255,.11);
+  font-size:11.5px; color:#ffd0ec;
+  animation:tkIn .28s var(--ease);
+}
+.morph-to.empty{ font-size:12px; color:var(--faint); }
+@keyframes tkIn{
+  from{ opacity:0; transform:translateY(5px) scale(.93); }
+  to  { opacity:1; transform:none; }
+}
+
+/* ================= 表单 ================= */
+.field{ margin-bottom:16px; }
+.field:last-child{ margin-bottom:0; }
+.field > label{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin-bottom:9px;
+  font-size:11.5px; color:var(--dim); letter-spacing:.07em;
+}
+
+.txt{
+  width:100%;
+  padding:13px 14px;
+  border-radius:var(--r-md);
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.26);
+  color:var(--text);
+  font-size:16px;               /* 16px 避免 iOS 自动放大 */
+  font-family:inherit;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s, background .2s;
+}
+.txt::placeholder{ color:#5f5279; }
+.txt:focus{
+  border-color:rgba(255,79,163,.65);
+  background:rgba(0,0,0,.36);
+  box-shadow:0 0 0 3px rgba(255,79,163,.13);
+}
+textarea.txt{ resize:none; min-height:90px; line-height:1.65; }
+
+/* ================= 选项胶囊 ================= */
+.chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{
+  position:relative;
+  display:inline-flex; align-items:center; gap:6px;
+  min-height:38px;
+  padding:0 15px;
+  border-radius:99px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.045);
+  color:var(--dim);
+  font-size:12.5px;
+  cursor:pointer; overflow:hidden;
+  transition:transform .18s var(--ease), color .2s, border-color .2s, background .2s;
+}
+.chip:active{ transform:scale(.94); }
+.chip.on{
+  color:#fff; border-color:transparent;
+  background:linear-gradient(135deg, var(--pink), var(--violet));
+  box-shadow:0 6px 18px -6px var(--pink);
+  animation:chipPop .3s var(--ease);
+}
+.chip.on::before{
+  content:'✓';
+  font-size:11px; font-weight:900;
+  animation:checkIn .26s var(--ease);
+}
+@keyframes chipPop{ 0%{transform:scale(.9)} 60%{transform:scale(1.05)} 100%{transform:scale(1)} }
+@keyframes checkIn{ from{opacity:0; transform:translateX(-5px)} to{opacity:1; transform:none} }
+
+/* ================= 滑杆 ================= */
+.range{ position:relative; padding-top:32px; }
+.range .bubble{
+  position:absolute; top:0;
+  left:calc(var(--p,0) * (100% - 26px) + 13px);
+  transform:translateX(-50%);
+  padding:4px 11px;
+  border-radius:9px;
+  border:1px solid var(--line-2);
+  background:rgba(255,255,255,.09);
+  font-size:12px; font-weight:700;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap; pointer-events:none;
+  transition:left .07s linear;
+}
+.range input[type=range]{
+  -webkit-appearance:none; appearance:none;
+  display:block; width:100%; height:36px;
+  background:transparent; outline:none;
+}
+.range input[type=range]::-webkit-slider-runnable-track{
+  height:8px; border-radius:99px;
+  background:
+    linear-gradient(90deg, var(--pink), var(--violet)) no-repeat 0 0 / calc(var(--p,0) * 100%) 100%,
+    rgba(255,255,255,.12);
+}
+.range input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:26px; height:26px; margin-top:-9px;
+  border-radius:50%; border:none;
+  background:#fff;
+  box-shadow:0 3px 10px rgba(0,0,0,.45), 0 0 0 4px rgba(160,107,255,.20);
+  transition:box-shadow .2s;
+}
+.range input[type=range]:active::-webkit-slider-thumb{
+  box-shadow:0 3px 10px rgba(0,0,0,.45), 0 0 0 9px rgba(160,107,255,.28);
+}
+.range input[type=range]::-moz-range-track{
+  height:8px; border-radius:99px; background:rgba(255,255,255,.12);
+}
+.range input[type=range]::-moz-range-progress{
+  height:8px; border-radius:99px; background:linear-gradient(90deg,var(--pink),var(--violet));
+}
+.range input[type=range]::-moz-range-thumb{
+  width:24px; height:24px; border:none; border-radius:50%;
+  background:#fff; box-shadow:0 3px 10px rgba(0,0,0,.45);
+}
+
+/* ================= 开关 ================= */
+.row{
+  display:flex; align-items:center; gap:12px;
+  min-height:44px;
+}
+.row .row-txt{ flex:1; min-width:0; }
+.row .row-txt b{ display:block; font-size:13px; font-weight:600; }
+.row .row-txt small{ display:block; margin-top:3px; font-size:10.5px; color:var(--faint); }
+
+.switch{
+  position:relative; flex:0 0 auto;
+  width:50px; height:29px;
+  border-radius:99px; border:none;
+  background:rgba(255,255,255,.13);
+  cursor:pointer; padding:0;
+  transition:background .26s var(--ease);
+}
+.switch::after{
+  content:''; position:absolute; top:3px; left:3px;
+  width:23px; height:23px; border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.35);
+  transition:transform .26s var(--ease);
+}
+.switch.on{ background:linear-gradient(135deg,var(--pink),var(--violet)); }
+.switch.on::after{ transform:translateX(21px); }
+
+/* ================= 假录音 ================= */
+.rec{
+  display:flex; align-items:center; gap:12px;
+  padding:12px;
+  border-radius:var(--r-md);
+  border:1px solid var(--line);
+  background:rgba(0,0,0,.26);
+}
+.rec-btn{
+  display:inline-flex; align-items:center; gap:7px;
+  min-height:40px; padding:0 16px;
+  border-radius:99px; border:none;
+  background:linear-gradient(135deg,var(--pink),var(--violet));
+  color:#fff; font-size:12.5px; font-weight:700; letter-spacing:.05em;
+  cursor:pointer; flex:0 0 auto;
+  transition:transform .16s var(--ease);
+}
+.rec-btn:active{ transform:scale(.95); }
+.rec-btn.recording{ background:linear-gradient(135deg,#ff2d55,#ff4fa3); animation:recPulse 1.1s ease-in-out infinite; }
+@keyframes recPulse{
+  0%,100%{ box-shadow:0 0 0 0 rgba(255,45,85,.55); }
+  50%    { box-shadow:0 0 0 9px rgba(255,45,85,0); }
+}
+.rec-dot{ width:9px; height:9px; border-radius:50%; background:#fff; flex:0 0 auto; transition:border-radius .2s; }
+.rec-btn.recording .rec-dot{ border-radius:2px; }
+
+.rec-wave{
+  display:flex; align-items:center; gap:3px;
+  flex:1; min-width:0; height:26px; overflow:hidden;
+}
+.rec-wave i{
+  flex:1; min-width:2px; height:18%;
+  border-radius:2px;
+  background:rgba(255,255,255,.20);
+  transition:height .16s;
+}
+.rec-wave.on i{
+  background:linear-gradient(180deg,var(--pink),var(--violet));
+  animation:waveMove .9s ease-in-out infinite;
+}
+.rec-wave.on i:nth-child(2n){ animation-duration:1.3s; }
+.rec-wave.on i:nth-child(3n){ animation-duration:.68s; }
+.rec-wave.on i:nth-child(5n){ animation-duration:1.6s; }
+@keyframes waveMove{ 0%,100%{ height:18%; } 50%{ height:96%; } }
+
+.rec-time{
+  flex:0 0 auto; font-size:11.5px; color:var(--dim);
+  font-variant-numeric:tabular-nums;
+}
+
+.clip{
+  display:flex; align-items:center; gap:11px;
+  margin-top:10px; padding:11px 13px;
+  border-radius:var(--r-md);
+  border:1px solid rgba(255,79,163,.36);
+  background:rgba(255,79,163,.085);
+  animation:clipIn .3s var(--ease);
+}
+.clip[hidden]{ display:none; }
+@keyframes clipIn{ from{opacity:0; transform:translateY(-6px)} to{opacity:1; transform:none} }
+.clip .play{
+  width:32px; height:32px; flex:0 0 auto;
+  display:grid; place-items:center;
+  border-radius:50%; border:none;
+  background:linear-gradient(135deg,var(--pink),var(--violet));
+  color:#fff; font-size:12px; cursor:pointer;
+  transition:transform .16s var(--ease);
+}
+.clip .play:active{ transform:scale(.9); }
+.clip .play.playing{ animation:recPulse 1s infinite; }
+.clip .meta{ flex:1; min-width:0; }
+.clip .meta b{ display:block; font-size:12px; font-weight:600; }
+.clip .meta small{ display:block; margin-top:2px; font-size:10.5px; color:var(--dim); }
+.clip .del{
+  background:none; border:none;
+  font-size:19px; color:#ff9ecb;
+  cursor:pointer; padding:2px 5px; line-height:1;
+}
+
+/* ================= 底部按钮 ================= */
+.dock{
+  position:absolute; left:0; right:0; bottom:0; z-index:40;
+  padding:16px 18px calc(14px + var(--sb));
+  background:linear-gradient(0deg,
+      rgba(8,3,17,.99) 42%,
+      rgba(8,3,17,.86) 72%,
+      rgba(8,3,17,0) 100%);
+}
+.dock.bump{ animation:bump .42s var(--ease); }
+@keyframes bump{
+  0%,100%{ transform:translateX(0); }
+  20%    { transform:translateX(-9px); }
+  55%    { transform:translateX(8px); }
+  80%    { transform:translateX(-4px); }
+}
+
+.btn-main{
+  position:relative;
+  width:100%; min-height:56px;
+  border-radius:18px; border:none;
+  font-size:15.5px; font-weight:800;
+  letter-spacing:.26em; text-indent:.26em;
+  color:#fff; cursor:pointer; overflow:hidden;
+  background:var(--grad);
+  background-size:220% 100%;
+  opacity:.42; filter:saturate(.55);
+  box-shadow:none;
+  transition:opacity .3s var(--ease), filter .3s var(--ease), transform .14s var(--ease), box-shadow .3s;
+}
+.btn-main.ready{
+  opacity:1; filter:none;
+  animation:sheen 5.5s linear infinite;
+  box-shadow:0 12px 32px -8px rgba(255,79,163,.75), 0 0 0 1px rgba(255,255,255,.10) inset;
+}
+.btn-main:active{ transform:scale(.98); }
+@keyframes sheen{ from{ background-position:0% 50%; } to{ background-position:200% 50%; } }
+
+.dock-hint{
+  margin-top:9px;
+  text-align:center; font-size:10.5px;
+  letter-spacing:.09em; color:var(--faint);
+  transition:color .25s;
+}
+.dock-hint.warn{ color:#ff8ac4; }
+
+/* ================= 水波纹 ================= */
+.rip{ position:relative; overflow:hidden; }
+.ripple{
+  position:absolute; border-radius:50%;
+  background:rgba(255,255,255,.30);
+  transform:scale(0); pointer-events:none;
+  animation:rippleGo .6s var(--ease) forwards;
+}
+@keyframes rippleGo{ to{ transform:scale(2.8); opacity:0; } }
+
+/* ================= 演出层 ================= */
+.show{
+  position:absolute; inset:0; z-index:200;
+  overflow:hidden; display:none;
+  background:radial-gradient(circle at 50% 46%, #3d0b57 0%, #150428 52%, #06010d 100%);
+}
+.show.on{ display:block; animation:fadeIn .5s var(--ease); }
+@keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+
+.show-bg{
+  position:absolute; inset:-42%;
+  opacity:.72; filter:blur(72px);
+  background:conic-gradient(from 0deg,
+      rgba(255,79,163,.52), rgba(160,107,255,.44),
+      rgba(79,216,255,.34), rgba(255,79,163,.52));
+  animation:spinSlow 15s linear infinite;
+}
+@keyframes spinSlow{ to{ transform:rotate(360deg); } }
+
+.spiral{
+  position:absolute; left:50%; top:50%;
+  width:210vmax; height:210vmax;
+  transform:translate(-50%,-50%);
+  background:repeating-conic-gradient(from 0deg,
+      rgba(255,255,255,.075) 0deg 6deg, transparent 6deg 15deg);
+  -webkit-mask-image:radial-gradient(circle, #000 0%, transparent 58%);
+  mask-image:radial-gradient(circle, #000 0%, transparent 58%);
+  animation:spinSlow 11s linear infinite reverse;
+  mix-blend-mode:screen; opacity:.85;
+}
+.show.psy .show-bg{ animation-duration:4.2s; }
+.show.psy .spiral{ animation-duration:3.4s; }
+
+#hearts{ position:absolute; inset:0; pointer-events:none; z-index:4; }
+.wave{ position:absolute; inset:0; }
+.wh{ position:absolute; left:50%; top:50%; width:0; height:0; transform:rotate(var(--a)); }
+.wh-in{
+  position:absolute;
+  width:var(--s); height:var(--s);
+  left:calc(var(--s) / -2); top:calc(var(--s) / -2);
+  color:hsl(var(--hue) 100% 68%);
+  filter:drop-shadow(0 0 9px currentColor);
+  animation:heartFly var(--dur,2.6s) cubic-bezier(.22,.72,.32,1) forwards;
+  animation-delay:var(--delay,0s);
+}
+.wh-in svg{ width:100%; height:100%; display:block; }
+@keyframes heartFly{
+  0%  { transform:translateX(0) scale(.12) rotate(0deg);       opacity:0; }
+  12% { opacity:1; }
+  78% { opacity:.95; }
+  100%{ transform:translateX(var(--d)) scale(1) rotate(320deg); opacity:0; }
+}
+
+#pulse{
+  position:absolute; left:50%; top:50%; z-index:3;
+  width:160px; height:160px; margin:-80px 0 0 -80px;
+  border-radius:50%; opacity:0; pointer-events:none;
+  background:radial-gradient(circle, rgba(255,130,210,.95) 0%, rgba(160,107,255,.34) 46%, transparent 72%);
+}
+#pulse.go{ animation:pulseGo .95s ease-out; }
+@keyframes pulseGo{ from{ transform:scale(.15); opacity:1; } to{ transform:scale(3.5); opacity:0; } }
+
+/* ================= 心形隧道 ================= */
+.hypno{
+  position:absolute; left:50%; top:50%;
+  width:0; height:0; z-index:5; pointer-events:none;
+}
+.hypno-rot{
+  position:absolute; left:0; top:0;
+  animation:spinSlow 9s linear infinite;
+}
+.h-layer{
+  position:absolute; left:0; top:0;
+  width:var(--w,190px); height:var(--w,190px);
+  margin-left:calc(var(--w,190px) / -2);
+  margin-top:calc(var(--w,190px) / -2);
+  color:hsl(var(--hue) 100% 68%);
+  opacity:0;
+  animation:layerOut var(--dur,3.4s) linear infinite;
+  animation-delay:var(--delay,0s);
+  will-change:transform,opacity;
+}
+.h-layer svg{ width:100%; height:100%; display:block; overflow:visible; }
+.h-layer svg path{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 6px currentColor);
+}
+/* 从中心向外一层层扩张，边走边转 —— 理发店招牌那种螺旋感 */
+@keyframes layerOut{
+  0%   { transform:scale(.05) rotate(0deg);   opacity:0; }
+  8%   { opacity:.95; }
+  60%  { opacity:.75; }
+  100% { transform:scale(7.4) rotate(52deg);  opacity:0; }
+}
+
+/* 从中间蹦出来的那颗心 */
+.core-heart{
+  position:absolute; left:50%; top:50%; z-index:6;
+  width:86px; height:86px; margin:-43px 0 0 -43px;
+  color:#fff; opacity:0; pointer-events:none;
+  filter:drop-shadow(0 0 16px #ff4fa3) drop-shadow(0 0 48px #a06bff);
+}
+.core-heart svg{ width:100%; height:100%; display:block; }
+.core-heart svg path{ fill:currentColor; stroke:none; }
+.core-heart.pop{
+  animation:corePop 1.25s cubic-bezier(.2,.85,.3,1.25) forwards,
+            coreBeat 1.7s ease-in-out 1.25s infinite;
+}
+@keyframes corePop{
+  0%  { transform:scale(0);    opacity:0; }
+  40% { transform:scale(1.38); opacity:1; }
+  62% { transform:scale(.90); }
+  82% { transform:scale(1.06); }
+  100%{ transform:scale(1);    opacity:1; }
+}
+@keyframes coreBeat{
+  0%,100%{ transform:scale(1); }
+  50%    { transform:scale(1.13); }
+}
+
+/* 结算卡 */
+.result{
+  position:absolute; left:50%; bottom:calc(4% + var(--sb));
+  transform:translate(-50%,26px);
+  width:min(90%,392px); z-index:9;
+  padding:18px;
+  border-radius:var(--r-xl);
+  border:1px solid var(--line-2);
+  background:rgba(20,6,38,.90);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  box-shadow:0 26px 64px rgba(0,0,0,.55);
+  opacity:0; pointer-events:none;
+  transition:opacity .5s var(--ease), transform .55s var(--ease);
+}
+.result.on{ opacity:1; transform:translate(-50%,0); pointer-events:auto; }
+
+.result-head{
+  display:flex; align-items:center; gap:9px;
+  margin-bottom:13px;
+  font-size:13px; font-weight:800; letter-spacing:.16em;
+}
+.result-head .dot{
+  width:8px; height:8px; border-radius:50%;
+  background:#5cff9d; box-shadow:0 0 12px #5cff9d;
+}
+
+#resultList{ list-style:none; max-height:32vh; overflow-y:auto; }
+#resultList::-webkit-scrollbar{ width:0; }
+#resultList li{
+  display:flex; align-items:baseline; gap:9px;
+  padding:8px 0;
+  border-bottom:1px dashed rgba(255,255,255,.085);
+  font-size:12px;
+}
+#resultList li:last-child{ border-bottom:none; }
+#resultList li .sec{ flex:0 0 auto; font-size:10px; color:var(--faint); }
+#resultList li .lab{ flex:0 0 auto; font-weight:700; }
+#resultList li .val{
+  margin-left:auto; max-width:48%;
+  text-align:right; color:#ffd0ec;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+#resultList li.more{ justify-content:center; color:var(--faint); font-size:11px; }
+
+.result-actions{ display:flex; gap:10px; margin-top:16px; }
+.result-actions button{
+  flex:1; min-height:48px;
+  border-radius:var(--r-md);
+  font-size:13px; font-weight:700; letter-spacing:.08em;
+  cursor:pointer; transition:transform .15s var(--ease);
+}
+.result-actions button:active{ transform:scale(.97); }
+.btn-ghost{ background:rgba(255,255,255,.07); border:1px solid var(--line); }
+.btn-solid{ border:none; color:#fff; background:var(--grad); }
+
+/* ================= 提示条 ================= */
+.toast{
+  position:absolute; left:50%; bottom:calc(var(--dock-h) + var(--sb) + 8px);
+  transform:translate(-50%,14px);
+  z-index:300;
+  max-width:82%;
+  padding:11px 18px;
+  border-radius:99px;
+  border:1px solid var(--line-2);
+  background:rgba(28,10,48,.94);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  font-size:12.5px; color:var(--text);
+  box-shadow:0 12px 30px rgba(0,0,0,.45);
+  opacity:0; pointer-events:none;
+  transition:opacity .28s var(--ease), transform .28s var(--ease);
+}
+.toast.on{ opacity:1; transform:translate(-50%,0); }
+
+/* ================= 横屏提示（仅触屏设备） ================= */
+.rotate-tip{
+  position:fixed; inset:0; z-index:500;
+  display:none; place-items:center;
+  background:var(--bg);
+  text-align:center; padding:24px;
+}
+.rotate-tip .ic{ font-size:52px; margin-bottom:16px; animation:tilt 2s ease-in-out infinite; }
+.rotate-tip p{ font-size:14px; color:var(--dim); letter-spacing:.1em; }
+@keyframes tilt{ 0%,100%{ transform:rotate(0deg); } 50%{ transform:rotate(-88deg); } }
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){
+  .rotate-tip{ display:grid; }
+}
+
+/* ================= 桌面浏览器预览 =================
+   只在「宽屏 + 精确指针」下生效，把界面收进一个手机比例的框里。
+   真机（coarse pointer）永远不会命中这条规则。 */
+@media (min-width:560px) and (pointer:fine){
+  body{
+    align-items:center;
+    justify-content:center;
+    padding:26px;
+    background:
+      radial-gradient(60% 50% at 50% 0%, #1b0f2e 0%, transparent 70%),
+      #05010a;
+  }
+  #app{
+    width:390px;
+    height:min(844px, calc(100vh - 52px));
+    height:min(844px, calc(100dvh - 52px));
+    border-radius:38px;
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow:
+      0 0 0 10px #16101f,
+      0 0 0 11px rgba(255,255,255,.07),
+      0 44px 110px rgba(0,0,0,.75),
+      0 0 90px rgba(160,107,255,.18);
+  }
+  .rotate-tip{ display:none !important; }
+
+  /* 顶部开个「刘海」小装饰，更像手机 */
+  #app::before{
+    content:'';
+    position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    width:112px; height:26px; border-radius:99px;
+    background:#0a0616;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+    z-index:400; pointer-events:none;
+  }
+  .home-head{ padding-top:64px; }
+  .topbar{ padding-top:26px; }
+}
+
+/* ================= 减少动效偏好 ================= */
+@media (prefers-reduced-motion:reduce){
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.08s !important; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- 横屏提示 -->
+<div class="rotate-tip">
+  <div>
+    <div class="ic">📱</div>
+    <p>请把手机竖过来使用</p>
+  </div>
+</div>
+
+<div id="app">
+
+  <div class="screens">
+
+    <!-- ================= 第一层：首页 ================= -->
+    <section class="screen active" data-screen="home">
+
+      <div class="home-head">
+        <div class="orb"><span>♡</span></div>
+        <h1>催眠APP</h1>
+        <div class="tag">Hypnosis Simulator</div>
+      </div>
+
+      <div class="overview">
+        <div class="ov-ring" id="ovRing" style="--p:0"><b id="ovCount">0</b></div>
+        <div class="ov-txt">
+          <div class="k">催眠对象</div>
+          <div class="v empty" id="ovTarget">尚未指定</div>
+        </div>
+      </div>
+
+      <div class="menu">
+        <button class="card hero-card rip" data-go="change">
+          <span class="card-ico" style="--c1:#ff4fa3;--c2:#a06bff">🧬</span>
+          <span class="card-txt">
+            <b>对象修改</b>
+            <small>性别 · 身高 · 体重 · 体形 · 分类 · 外观</small>
+          </span>
+          <span class="chev">›</span>
+        </button>
+
+        <button class="card hero-card rip" data-go="hypno">
+          <span class="card-ico" style="--c1:#a06bff;--c2:#4fd8ff">🌀</span>
+          <span class="card-txt">
+            <b>正经催眠</b>
+            <small>指定行动 · 自定义台词 · 假装录音</small>
+          </span>
+          <span class="chev">›</span>
+        </button>
+
+        <div class="grid2">
+          <button class="card mini rip" data-go="common">
+            <span class="card-ico sm" style="--c1:#4fd8ff;--c2:#a06bff">📖</span>
+            <span class="card-txt">
+              <b>常识改写</b>
+              <small>改变认知</small>
+            </span>
+          </button>
+
+          <button class="card mini rip" data-go="sense">
+            <span class="card-ico sm" style="--c1:#ff8fd0;--c2:#ff4fa3">💗</span>
+            <span class="card-txt">
+              <b>感觉调整</b>
+              <small>心情 · 感觉</small>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <p class="foot-note">※ 本应用不会产生任何实际的催眠效果<br>仅为漫画风格的视觉演出小玩具</p>
+    </section>
+
+
+    <!-- ================= 第二层：对象修改 ================= -->
+    <section class="screen" data-screen="change">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>对象修改</h2>
+        <span class="tb-sub" id="changeCount"></span>
+      </div>
+
+      <!-- 变身预览 -->
+      <div class="morph">
+        <div class="morph-head"><span class="bar"></span><h3>变身预览</h3></div>
+        <div class="morph-who" id="morphWho">还没指定是谁</div>
+        <div class="morph-mid">
+          <span class="morph-tag">催眠后</span>
+          <span class="morph-line"></span>
+        </div>
+        <div class="morph-to" id="morphTo">还没设定会变成什么样</div>
+      </div>
+
+      <p class="lead">这里不是「指定对象」，而是决定被催眠的人<b>会变成什么样子</b>。填得越具体，变化越彻底。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>被催眠的人</h3></div>
+
+        <div class="field">
+          <label>TA 是谁</label>
+          <input class="txt" type="text" data-key="cn-name" placeholder="例如：我的好哥们" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的性别与年纪</h3></div>
+
+        <div class="field">
+          <label>性别</label>
+          <div class="chips" data-key="gender" data-single>
+            <button class="chip rip">男性</button>
+            <button class="chip rip">女性</button>
+            <button class="chip rip">中性</button>
+            <button class="chip rip">不改变</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>年龄</label>
+          <div class="range" data-range>
+            <span class="bubble">22 岁</span>
+            <input type="range" data-key="cn-age" data-unit=" 岁" min="18" max="80" value="22">
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的身材</h3></div>
+
+        <div class="field">
+          <label>身高</label>
+          <div class="range" data-range>
+            <span class="bubble">160 cm</span>
+            <input type="range" data-key="cn-height" data-unit=" cm" min="130" max="200" value="160">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>体重</label>
+          <div class="range" data-range>
+            <span class="bubble">52 kg</span>
+            <input type="range" data-key="cn-weight" data-unit=" kg" min="30" max="120" value="52">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>体形</label>
+          <div class="chips" data-key="cn-body">
+            <button class="chip rip">纤细</button>
+            <button class="chip rip">标准</button>
+            <button class="chip rip">丰满</button>
+            <button class="chip rip">大胸</button>
+            <button class="chip rip">健壮</button>
+            <button class="chip rip">娇小</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的气质</h3></div>
+
+        <div class="field">
+          <label>气质 / 属性 <span class="hint" style="color:var(--faint);font-size:10px">可多选</span></label>
+          <div class="chips" data-key="cn-type">
+            <button class="chip rip">假小子</button>
+            <button class="chip rip">大小姐</button>
+            <button class="chip rip">元气系</button>
+            <button class="chip rip">文静系</button>
+            <button class="chip rip">姐系</button>
+            <button class="chip rip">妹系</button>
+            <button class="chip rip">运动系</button>
+            <button class="chip rip">眼镜娘</button>
+            <button class="chip rip">制服</button>
+            <button class="chip rip">哥特</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>性格 <span style="color:var(--faint);font-size:10px">可多选</span></label>
+          <div class="chips" data-key="cn-pers">
+            <button class="chip rip">温柔</button>
+            <button class="chip rip">强势</button>
+            <button class="chip rip">傲娇</button>
+            <button class="chip rip">内向</button>
+            <button class="chip rip">开朗</button>
+            <button class="chip rip">冷静</button>
+            <button class="chip rip">爱撒娇</button>
+            <button class="chip rip">毒舌</button>
+            <button class="chip rip">顺从</button>
+            <button class="chip rip">高冷</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>变成后的外观</h3></div>
+
+        <div class="field">
+          <label>发色</label>
+          <div class="chips" data-key="cn-hair" data-single>
+            <button class="chip rip">黑</button>
+            <button class="chip rip">棕</button>
+            <button class="chip rip">金</button>
+            <button class="chip rip">粉</button>
+            <button class="chip rip">蓝</button>
+            <button class="chip rip">银</button>
+            <button class="chip rip">红</button>
+            <button class="chip rip">紫</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>发型</label>
+          <div class="chips" data-key="cn-hairlen" data-single>
+            <button class="chip rip">短发</button>
+            <button class="chip rip">中长发</button>
+            <button class="chip rip">长发</button>
+            <button class="chip rip">双马尾</button>
+            <button class="chip rip">丸子头</button>
+            <button class="chip rip">编发</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>瞳色</label>
+          <div class="chips" data-key="cn-eye" data-single>
+            <button class="chip rip">棕</button>
+            <button class="chip rip">黑</button>
+            <button class="chip rip">蓝</button>
+            <button class="chip rip">红</button>
+            <button class="chip rip">金</button>
+            <button class="chip rip">紫</button>
+            <button class="chip rip">异色瞳</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>声线</label>
+          <div class="chips" data-key="cn-voice" data-single>
+            <button class="chip rip">低音</button>
+            <button class="chip rip">中音</button>
+            <button class="chip rip">高音</button>
+            <button class="chip rip">甜音</button>
+            <button class="chip rip">沙哑</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>附加设定 / 口头禅</label>
+          <textarea class="txt" data-key="cn-note" placeholder="例如：说话时总会带上「的说」……"></textarea>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= 第二层：正经催眠 ================= -->
+    <section class="screen" data-screen="hypno">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>正经催眠</h2>
+        <span class="tb-sub" id="hypnoCount"></span>
+      </div>
+
+      <p class="lead">对 TA 施加催眠。可以附一句自己想说的话，或者录一段假装语音。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>催眠对象</h3></div>
+        <div class="field">
+          <label>对谁催眠</label>
+          <input class="txt" type="text" data-key="hy-target" placeholder="例如：她 / 坐在对面的那个人" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>诱导</h3></div>
+
+        <div class="field">
+          <label>自定义台词</label>
+          <textarea class="txt" data-key="hy-text" placeholder="例如：你现在很放松，只能听见我的声音……"></textarea>
+        </div>
+
+        <div class="field">
+          <label>诱导强度</label>
+          <div class="range" data-range>
+            <span class="bubble">6 / 10</span>
+            <input type="range" data-key="hy-strength" data-unit="/10" min="1" max="10" value="6">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="row">
+            <div class="row-txt">
+              <b>循环播放</b>
+              <small>演出结束后自动再来一次</small>
+            </div>
+            <button class="switch rip" data-key="hy-loop" aria-label="循环播放"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>自定义语音</h3></div>
+
+        <div class="rec">
+          <button class="rec-btn rip" id="recBtn">
+            <span class="rec-dot"></span><span id="recLabel">录音</span>
+          </button>
+          <div class="rec-wave" id="recWave">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="rec-time" id="recTime">00:00</div>
+        </div>
+
+        <div class="clip" id="voiceClip" hidden>
+          <button class="play rip" id="vcPlay">▶</button>
+          <span class="meta">
+            <b>自定义语音</b>
+            <small id="vcInfo">00:00 · 已录制</small>
+          </span>
+          <button class="del" id="vcDel">×</button>
+        </div>
+
+        <input type="hidden" data-key="hy-voice" id="hyVoice" value="">
+        <p class="lead" style="margin:11px 2px 0;font-size:10.5px">※ 不会真的保存音频。点播放时用系统朗读读出台词。</p>
+      </div>
+    </section>
+
+
+    <!-- ================= 第二层：常识改写 ================= -->
+    <section class="screen" data-screen="common">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>常识改写</h2>
+        <span class="tb-sub" id="commonCount"></span>
+      </div>
+
+      <p class="lead">把「理所当然」悄悄换掉。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>设定</h3></div>
+
+        <div class="field">
+          <label>对象</label>
+          <input class="txt" type="text" data-key="cm-target" placeholder="例如：她" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label>要改写的常识 <span style="color:var(--faint);font-size:10px">可多选</span></label>
+          <div class="chips" data-key="cm-what">
+            <button class="chip rip">「不行」→「可以」</button>
+            <button class="chip rip">喜欢上某件事</button>
+            <button class="chip rip">无聊的事变得快乐</button>
+            <button class="chip rip">忘记讨厌的事</button>
+            <button class="chip rip">称呼改成「主人」</button>
+            <button class="chip rip">觉得自己是一只猫</button>
+            <button class="chip rip">认为现在是做梦</button>
+            <button class="chip rip">对时间失去概念</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>备注</label>
+          <textarea class="txt" data-key="cm-text" placeholder="补充说明……"></textarea>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ================= 第二层：感觉调整 ================= -->
+    <section class="screen" data-screen="sense">
+      <div class="topbar">
+        <button class="icon-btn rip" data-back>‹</button>
+        <h2>感觉调整</h2>
+        <span class="tb-sub" id="senseCount"></span>
+      </div>
+
+      <p class="lead">把情绪和感觉的旋钮，拧到喜欢的位置。</p>
+
+      <div class="panel">
+        <div class="panel-head"><span class="bar"></span><h3>状态</h3></div>
+
+        <div class="field">
+          <label>心情</label>
+          <div class="chips" data-key="se-mood" data-single>
+            <button class="chip rip">平静</button>
+            <button class="chip rip">幸福</button>
+            <button class="chip rip">恍惚</button>
+            <button class="chip rip">兴奋</button>
+            <button class="chip rip">安心</button>
+            <button class="chip rip">困倦</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>敏感度</label>
+          <div class="range" data-range>
+            <span class="bubble">5 / 10</span>
+            <input type="range" data-key="se-sense" data-unit="/10" min="1" max="10" value="5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>体温</label>
+          <div class="range" data-range>
+            <span class="bubble">5 / 10</span>
+            <input type="range" data-key="se-warm" data-unit="/10" min="1" max="10" value="5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>心跳</label>
+          <div class="range" data-range>
+            <span class="bubble">5 / 10</span>
+            <input type="range" data-key="se-heart" data-unit="/10" min="1" max="10" value="5">
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.screens -->
+
+
+  <!-- ================= 底部主按钮 ================= -->
+  <div class="dock" id="dock">
+    <button class="btn-main rip" id="startBtn">催 眠 开 始</button>
+    <p class="dock-hint" id="dockHint">还没有设置任何项目</p>
+  </div>
+
+
+  <!-- ================= 演出层 ================= -->
+  <div class="show" id="show">
+    <div class="show-bg"></div>
+    <div class="spiral"></div>
+    <div class="hypno" id="hypno">
+      <div class="hypno-rot" id="hypnoRot"></div>
+    </div>
+    <div class="core-heart" id="coreHeart"></div>
+    <div id="pulse"></div>
+    <div id="hearts"></div>
+
+    <div class="result" id="result">
+      <div class="result-head"><span class="dot"></span>催眠 完了</div>
+      <ul id="resultList"></ul>
+      <div class="result-actions">
+        <button class="btn-ghost rip" id="againBtn">再来一次</button>
+        <button class="btn-solid rip" id="closeBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 轻提示 -->
+  <div class="toast" id="toast"></div>
+
+</div><!-- /#app -->
+
+<script>
+/* =========================================================
+   催眠APP — 交互逻辑
+   ========================================================= */
+(function () {
+  'use strict';
+
+  var $  = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  var HEART_SVG =
+    '<svg viewBox="0 0 32 30" aria-hidden="true">' +
+    '<path fill="currentColor" d="M16 29C16 29 1 19 1 10.3 1 5.2 5.2 1 10.3 1c3.1 0 5.3 1.6 5.7 3.6C16.4 2.6 18.6 1 21.7 1 26.8 1 31 5.2 31 10.3 31 19 16 29 16 29z"/>' +
+    '</svg>';
+
+  /* ---------------- 原生桥 ---------------- */
+  var ANDROID = (typeof window.Android !== 'undefined') ? window.Android : null;
+
+  function bridge(fn, arg) {
+    try {
+      if (ANDROID && typeof ANDROID[fn] === 'function') { ANDROID[fn](arg); return true; }
+    } catch (e) { /* 忽略 */ }
+    return false;
+  }
+  function haptic(ms) {
+    ms = ms || 12;
+    if (!bridge('vibrate', ms) && navigator.vibrate) {
+      try { navigator.vibrate(ms); } catch (e) {}
+    }
+  }
+  function setImmersive(on)  { bridge('setImmersive', !!on); }
+  function setKeepAwake(on)  { bridge('setKeepScreenOn', !!on); }
+
+  /* ---------------- 轻提示 ---------------- */
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('on'); }, 1900);
+  }
+
+  /* ---------------- 字段定义 ---------------- */
+  var FIELDS = [
+    { key: 'cn-name',     section: '对象修改', label: '称呼' },
+    { key: 'gender',      section: '对象修改', label: '性别' },
+    { key: 'cn-age',      section: '对象修改', label: '年龄' },
+    { key: 'cn-height',   section: '对象修改', label: '身高' },
+    { key: 'cn-weight',   section: '对象修改', label: '体重' },
+    { key: 'cn-body',     section: '对象修改', label: '体形' },
+    { key: 'cn-type',     section: '对象修改', label: '分类' },
+    { key: 'cn-pers',     section: '对象修改', label: '性格' },
+    { key: 'cn-hair',     section: '对象修改', label: '发色' },
+    { key: 'cn-hairlen',  section: '对象修改', label: '发型' },
+    { key: 'cn-eye',      section: '对象修改', label: '瞳色' },
+    { key: 'cn-voice',    section: '对象修改', label: '声线' },
+    { key: 'cn-note',     section: '对象修改', label: '附加设定' },
+
+    { key: 'hy-target',   section: '正经催眠', label: '对象' },
+    { key: 'hy-text',     section: '正经催眠', label: '台词' },
+    { key: 'hy-voice',    section: '正经催眠', label: '自定义语音' },
+    { key: 'hy-strength', section: '正经催眠', label: '强度' },
+
+    { key: 'cm-target',   section: '常识改写', label: '对象' },
+    { key: 'cm-what',     section: '常识改写', label: '改写' },
+    { key: 'cm-text',     section: '常识改写', label: '备注' },
+
+    { key: 'se-mood',     section: '感觉调整', label: '心情' },
+    { key: 'se-sense',    section: '感觉调整', label: '敏感度' },
+    { key: 'se-warm',     section: '感觉调整', label: '体温' },
+    { key: 'se-heart',    section: '感觉调整', label: '心跳' }
+  ];
+
+  var FIELD_KEYS = {};
+  FIELDS.forEach(function (f) { FIELD_KEYS[f.key] = true; });
+
+  var TARGET_KEYS = ['cn-name', 'hy-target', 'cm-target'];
+  var PREFIX = { change: 'cn-', hypno: 'hy-', common: 'cm-', sense: 'se-' };
+
+  var touched = {};
+
+  /* ---------------- 读取 ---------------- */
+  function readField(key) {
+    var el = document.querySelector('[data-key="' + key + '"]');
+    if (!el) return '';
+    if (el.classList.contains('chips')) {
+      return $$('.chip.on', el).map(function (c) {
+        return c.textContent.trim();
+      }).join('・');
+    }
+    if (el.type === 'range') return el.value + (el.dataset.unit || '');
+    return (el.value || '').trim();
+  }
+
+  function collect() {
+    var out = [];
+    for (var i = 0; i < FIELDS.length; i++) {
+      var f = FIELDS[i];
+      if (!touched[f.key]) continue;
+      var v = readField(f.key);
+      if (v) out.push({ key: f.key, section: f.section, label: f.label, val: v });
+    }
+    return out;
+  }
+
+  function countByPrefix(prefix) {
+    var n = 0;
+    for (var k in touched) {
+      if (touched[k] && k.indexOf(prefix) === 0 && readField(k)) n++;
+    }
+    return n;
+  }
+
+  /* ---------------- 变身预览 ---------------- */
+  var MORPH_ORDER = ['gender','cn-age','cn-height','cn-weight','cn-body',
+                     'cn-type','cn-pers','cn-hair','cn-hairlen','cn-eye','cn-voice'];
+
+  function refreshMorph() {
+    var who = $('#morphWho'), to = $('#morphTo');
+    if (!who || !to) return;
+
+    var name = readField('cn-name');
+    if (name) { who.textContent = name; who.classList.remove('empty'); }
+    else      { who.textContent = '还没指定是谁'; who.classList.add('empty'); }
+
+    var tags = [];
+    MORPH_ORDER.forEach(function (k) {
+      if (!touched[k]) return;
+      var v = readField(k);
+      if (v) tags.push(v);
+    });
+
+    to.innerHTML = '';
+    if (!tags.length) {
+      to.classList.add('empty');
+      to.textContent = '还没设定会变成什么样';
+      return;
+    }
+    to.classList.remove('empty');
+    tags.slice(0, 9).forEach(function (t) {
+      var sp = document.createElement('span');
+      sp.className = 'tk';
+      sp.textContent = t;
+      to.appendChild(sp);
+    });
+    if (tags.length > 9) {
+      var m = document.createElement('span');
+      m.className = 'tk';
+      m.textContent = '+' + (tags.length - 9);
+      to.appendChild(m);
+    }
+  }
+
+  /* ---------------- 刷新界面 ---------------- */
+  function refresh() {
+    var items = collect();
+    var n = items.length;
+
+    refreshMorph();
+
+    $('#ovCount').textContent = n;
+    $('#ovRing').style.setProperty('--p', Math.min(1, n / 12).toFixed(3));
+
+    var t = null;
+    for (var i = 0; i < items.length; i++) {
+      if (TARGET_KEYS.indexOf(items[i].key) >= 0) { t = items[i]; break; }
+    }
+    var ov = $('#ovTarget');
+    if (t) { ov.textContent = t.val; ov.classList.remove('empty'); }
+    else   { ov.textContent = '尚未指定'; ov.classList.add('empty'); }
+
+    Object.keys(PREFIX).forEach(function (screen) {
+      var el = document.getElementById(screen + 'Count');
+      if (!el) return;
+      var c = countByPrefix(PREFIX[screen]);
+      el.textContent = c ? c + ' 项' : '';
+    });
+
+    var btn = $('#startBtn');
+    btn.classList.toggle('ready', n > 0);
+    var hint = $('#dockHint');
+    hint.classList.remove('warn');
+    hint.textContent = n > 0 ? (n + ' 项已设置 · 可以开始了') : '还没有设置任何项目';
+  }
+
+  var bumpTimer = null;
+  function bumpDock() {
+    var dock = $('#dock');
+    dock.classList.remove('bump');
+    void dock.offsetWidth;
+    dock.classList.add('bump');
+    var hint = $('#dockHint');
+    hint.textContent = '先设置至少一项内容吧 ♡';
+    hint.classList.add('warn');
+    clearTimeout(bumpTimer);
+    bumpTimer = setTimeout(refresh, 2400);
+  }
+
+  /* ---------------- 导航 ---------------- */
+  function goScreen(id) {
+    var next = document.querySelector('.screen[data-screen="' + id + '"]');
+    if (!next) return;
+    var cur = $('.screen.active');
+    if (cur === next) return;
+    if (cur) cur.classList.remove('active');
+    next.scrollTop = 0;
+    next.classList.add('active');
+    haptic(8);
+  }
+
+  /* ---------------- 水波纹 ---------------- */
+  document.addEventListener('pointerdown', function (e) {
+    var el = e.target.closest ? e.target.closest('.rip') : null;
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    var size = Math.max(r.width, r.height);
+    var s = document.createElement('span');
+    s.className = 'ripple';
+    s.style.width = s.style.height = size + 'px';
+    s.style.left = (e.clientX - r.left - size / 2) + 'px';
+    s.style.top  = (e.clientY - r.top  - size / 2) + 'px';
+    el.appendChild(s);
+    setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 640);
+  }, { passive: true });
+
+  /* ---------------- 全局点击 ---------------- */
+  document.addEventListener('click', function (e) {
+    var target = e.target;
+
+    var goBtn = target.closest('[data-go]');
+    if (goBtn) { goScreen(goBtn.dataset.go); return; }
+
+    var backBtn = target.closest('[data-back]');
+    if (backBtn) { goScreen('home'); return; }
+
+    var chip = target.closest('.chip');
+    if (chip) {
+      var group = chip.closest('.chips');
+      if (group.hasAttribute('data-single')) {
+        $$('.chip', group).forEach(function (c) {
+          c.classList.toggle('on', c === chip);
+        });
+      } else {
+        chip.classList.toggle('on');
+      }
+      var key = group.dataset.key;
+      if (key && FIELD_KEYS[key]) touched[key] = true;
+      haptic(10);
+      refresh();
+      return;
+    }
+
+    var sw = target.closest('.switch');
+    if (sw) {
+      sw.classList.toggle('on');
+      haptic(14);
+      return;
+    }
+  });
+
+  /* ---------------- 文本输入 ---------------- */
+  document.addEventListener('input', function (e) {
+    var el = e.target;
+    if (!el.dataset || !el.dataset.key) return;
+    var key = el.dataset.key;
+
+    if (el.type === 'range') {
+      syncRange(el);
+      tickHaptic(el);
+    }
+    if (FIELD_KEYS[key]) touched[key] = true;
+    refresh();
+  });
+
+  document.addEventListener('focusin', function (e) {
+    var el = e.target;
+    if (el && el.classList && el.classList.contains('txt')) {
+      setTimeout(function () {
+        try { el.scrollIntoView({ block: 'nearest' }); } catch (err) {}
+      }, 320);
+    }
+  });
+
+  /* ---------------- 滑杆 ---------------- */
+  function syncRange(input) {
+    var wrap = input.closest('[data-range]');
+    if (!wrap) return;
+    var min = parseFloat(input.min), max = parseFloat(input.max), v = parseFloat(input.value);
+    var p = (max - min) ? (v - min) / (max - min) : 0;
+    wrap.style.setProperty('--p', p.toFixed(4));
+    var b = wrap.querySelector('.bubble');
+    if (b) b.textContent = v + (input.dataset.unit || '');
+  }
+
+  function tickHaptic(input) {
+    if (input._last === undefined) { input._last = input.value; return; }
+    if (input._last !== input.value) {
+      input._last = input.value;
+      haptic(5);
+    }
+  }
+
+  /* ---------------- 假装录音 ---------------- */
+  var recState = 'idle';
+  var recTicker = null;
+  var recSeconds = 0;
+
+  function fmt(s) {
+    var m = Math.floor(s / 60), x = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (x < 10 ? '0' : '') + x;
+  }
+
+  function startRec() {
+    recState = 'recording';
+    recSeconds = 0;
+    $('#recTime').textContent = '00:00';
+    $('#recLabel').textContent = '停止';
+    $('#recBtn').classList.add('recording');
+    $('#recWave').classList.add('on');
+    $('#voiceClip').hidden = true;
+    haptic(18);
+    recTicker = setInterval(function () {
+      recSeconds++;
+      $('#recTime').textContent = fmt(recSeconds);
+      if (recSeconds >= 60) stopRec();
+    }, 1000);
+  }
+
+  function stopRec() {
+    clearInterval(recTicker);
+    recState = 'done';
+    $('#recBtn').classList.remove('recording');
+    $('#recWave').classList.remove('on');
+    $('#recLabel').textContent = '重录';
+    var dur = Math.max(1, recSeconds);
+    $('#vcInfo').textContent = fmt(dur) + ' · 已录制';
+    $('#voiceClip').hidden = false;
+    $('#hyVoice').value = fmt(dur);
+    touched['hy-voice'] = true;
+    haptic(18);
+    refresh();
+  }
+
+  $('#recBtn').addEventListener('click', function () {
+    if (recState === 'recording') stopRec(); else startRec();
+  });
+
+  $('#vcDel').addEventListener('click', function () {
+    $('#voiceClip').hidden = true;
+    recState = 'idle';
+    $('#recLabel').textContent = '录音';
+    recSeconds = 0;
+    $('#recTime').textContent = '00:00';
+    $('#hyVoice').value = '';
+    delete touched['hy-voice'];
+    refresh();
+  });
+
+  $('#vcPlay').addEventListener('click', function () {
+    var btn = $('#vcPlay');
+    var text = ($('[data-key="hy-text"]').value || '').trim()
+             || '你现在很放松，只能听见我的声音。';
+    btn.classList.add('playing');
+    $('#recWave').classList.add('on');
+
+    function finish() {
+      btn.classList.remove('playing');
+      $('#recWave').classList.remove('on');
+    }
+
+    if ('speechSynthesis' in window) {
+      try {
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'zh-CN';
+        u.rate = 0.85;
+        u.pitch = 1.05;
+        u.onend = finish;
+        u.onerror = finish;
+        speechSynthesis.speak(u);
+        setTimeout(finish, Math.min(20000, text.length * 260 + 2600));
+      } catch (e) { setTimeout(finish, 2400); }
+    } else {
+      setTimeout(finish, 2400);
+    }
+  });
+
+  /* ---------------- 催眠演出 ---------------- */
+  var showEl   = $('#show');
+  var heartsEl = $('#hearts');
+  var rotEl    = $('#hypnoRot');
+  var coreEl   = $('#coreHeart');
+  var showRunning = false;
+  var spawnTimer = null, loopTimer = null, tunnelTimer = null;
+
+  /* 中心那颗心先蹦出来 */
+  function popCore() {
+    coreEl.innerHTML = HEART_SVG;
+    coreEl.classList.remove('pop');
+    void coreEl.offsetWidth;
+    coreEl.classList.add('pop');
+  }
+
+  /* 然后一层层向外扩张的心形隧道 */
+  function buildTunnel() {
+    rotEl.innerHTML = '';
+    var N = 10, DUR = 3.4;
+    for (var i = 0; i < N; i++) {
+      var d = document.createElement('div');
+      d.className = 'h-layer';
+      d.style.setProperty('--w', '190px');
+      d.style.setProperty('--hue', (322 - i * 12).toFixed(0));
+      d.style.setProperty('--dur', DUR + 's');
+      d.style.setProperty('--delay', (-(i * DUR / N)).toFixed(2) + 's');
+      d.innerHTML = HEART_SVG;
+      rotEl.appendChild(d);
+    }
+  }
+
+  /* 飞散的碎心（点缀） */
+  function spawnWave(n) {
+    var wave = document.createElement('div');
+    wave.className = 'wave';
+
+    var rect = $('#app').getBoundingClientRect();
+    var maxD = Math.sqrt(rect.width * rect.width + rect.height * rect.height) * 0.55;
+    var count = 5 + Math.floor(Math.random() * 4) + Math.min(5, n);
+
+    for (var i = 0; i < count; i++) {
+      var wh = document.createElement('div');
+      wh.className = 'wh';
+
+      var angle = (360 / count) * i + (Math.random() * 26 - 13);
+      var dist  = maxD * (0.28 + Math.random() * 1.0);
+      var size  = 9 + Math.random() * 20;
+
+      wh.style.setProperty('--a', angle.toFixed(1) + 'deg');
+      wh.style.setProperty('--d', dist.toFixed(0) + 'px');
+      wh.style.setProperty('--s', size.toFixed(1) + 'px');
+      wh.style.setProperty('--hue', (300 + Math.random() * 80).toFixed(0));
+      wh.style.setProperty('--dur', (2.3 + Math.random() * 1.9).toFixed(2) + 's');
+      wh.style.setProperty('--delay', (Math.random() * 0.3).toFixed(2) + 's');
+      wh.innerHTML = '<div class="wh-in">' + HEART_SVG + '</div>';
+
+      wave.appendChild(wh);
+    }
+    heartsEl.appendChild(wave);
+    setTimeout(function () { if (wave.parentNode) wave.parentNode.removeChild(wave); }, 5400);
+  }
+
+  function pulse() {
+    var p = $('#pulse');
+    p.classList.remove('go');
+    void p.offsetWidth;
+    p.classList.add('go');
+  }
+
+  function renderResult(items) {
+    var ul = $('#resultList');
+    ul.innerHTML = '';
+    items.slice(0, 7).forEach(function (it) {
+      var li = document.createElement('li');
+      var s = document.createElement('span'); s.className = 'sec'; s.textContent = it.section;
+      var b = document.createElement('b');   b.className = 'lab'; b.textContent = it.label;
+      var v = document.createElement('span'); v.className = 'val'; v.textContent = it.val;
+      li.appendChild(s); li.appendChild(b); li.appendChild(v);
+      ul.appendChild(li);
+    });
+    if (items.length > 7) {
+      var more = document.createElement('li');
+      more.className = 'more';
+      more.textContent = '其他 ' + (items.length - 7) + ' 项…';
+      ul.appendChild(more);
+    }
+  }
+
+  function clearTimers() {
+    clearInterval(spawnTimer);
+    clearTimeout(loopTimer);
+    clearTimeout(tunnelTimer);
+    spawnTimer = loopTimer = tunnelTimer = null;
+  }
+
+  function startShow() {
+    if (showRunning) return;
+    var items = collect();
+    if (!items.length) { bumpDock(); toast('先设置至少一项内容吧'); return; }
+
+    showRunning = true;
+    showEl.classList.add('on');
+    showEl.classList.add('psy');
+    $('#result').classList.remove('on');
+    heartsEl.innerHTML = '';
+    rotEl.innerHTML = '';
+
+    setImmersive(true);
+    setKeepAwake(true);
+    haptic(26);
+
+    // ① 中间蹦出一颗心
+    popCore();
+    pulse();
+
+    // ② 700ms 后，边缘开始一层层向外扩张
+    tunnelTimer = setTimeout(function () {
+      if (!showRunning) return;
+      buildTunnel();
+      var n = 0;
+      spawnTimer = setInterval(function () { n++; spawnWave(n); pulse(); }, 420);
+    }, 700);
+
+    // ③ 七秒后结算
+    setTimeout(function () {
+      if (!showRunning) return;
+      clearInterval(spawnTimer); spawnTimer = null;
+      renderResult(items);
+      rotEl.innerHTML = '';
+      coreEl.classList.remove('pop');
+      setTimeout(function () {
+        if (!showRunning) return;
+        $('#result').classList.add('on');
+        var loopOn = $('[data-key="hy-loop"]').classList.contains('on');
+        if (loopOn) {
+          loopTimer = setTimeout(function () {
+            closeShow();
+            setTimeout(startShow, 300);
+          }, 4200);
+        }
+      }, 420);
+    }, 7000);
+  }
+
+  function closeShow() {
+    clearTimers();
+    showEl.classList.remove('on');
+    showEl.classList.remove('psy');
+    heartsEl.innerHTML = '';
+    rotEl.innerHTML = '';
+    coreEl.classList.remove('pop');
+    coreEl.innerHTML = '';
+    $('#result').classList.remove('on');
+    showRunning = false;
+    setImmersive(false);
+    setKeepAwake(false);
+  }
+
+  $('#startBtn').addEventListener('click', startShow);
+
+  $('#againBtn').addEventListener('click', function () {
+    closeShow();
+    setTimeout(startShow, 300);
+  });
+
+  $('#closeBtn').addEventListener('click', function () {
+    closeShow();
+    haptic(12);
+  });
+
+  /* ---------------- 返回键由原生调用 ---------------- */
+  window.__androidBack = function () {
+    if (showEl.classList.contains('on')) { closeShow(); return true; }
+    var cur = $('.screen.active');
+    if (cur && cur.dataset.screen !== 'home') { goScreen('home'); return true; }
+    return false;
+  };
+
+  /* ---------------- 初始化 ---------------- */
+  $$('input[type=range]').forEach(function (r) {
+    syncRange(r);
+    r._last = r.value;
+  });
+
+  refresh();
+
+  /* 首帧后重算一次，确保布局稳定 */
+  window.addEventListener('load', function () {
+    $$('input[type=range]').forEach(syncRange);
+    refresh();
+  });
+})();
+
+</script>
+</body>
+</html>
